@@ -9,7 +9,7 @@ const fetchCorrelationId = async (text) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ prompt: text }),
+      body: JSON.stringify({ prompt: text, language: 'vi', }),
     });
 
     const data = await response.json();
