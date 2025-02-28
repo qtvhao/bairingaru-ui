@@ -35,7 +35,11 @@ export const ChatContextProvider = ({ children }) => {
         setChatHistory((prevChatHistory) => {
           const updatedChatHistory = prevChatHistory.map((chat) =>
             chat.correlationId === correlationId
-              ? { ...chat, response }
+              ? {
+                ...chat,
+                response,
+                trimmed: this[0].response.choices[0].message.audio.trimmed
+              }
               : chat
           );
           console.log("📝 Updated chat history:", updatedChatHistory);
