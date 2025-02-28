@@ -28,3 +28,8 @@ export const getFromDB = async (prompt) => {
   const allEntries = await db.getAll(STORE_NAME);
   return allEntries.find((entry) => entry.prompt === prompt)?.correlationId || null;
 };
+
+export const getAll = async () => {
+  const db = await initDB();
+  return db.getAll(STORE_NAME);
+};

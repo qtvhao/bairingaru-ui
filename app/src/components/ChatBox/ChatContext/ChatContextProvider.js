@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect } from "react";
 import { fetchCorrelationId, getPodcastByCorrelationId } from "../ChatContext/api/fetchCorrelationId";
-import { getFromDB } from "./db/indexedDB"
+import { getAll } from "./db/indexedDB"
 
 export const ChatContext = createContext();
 
@@ -10,7 +10,7 @@ export const ChatContextProvider = ({ children }) => {
   useEffect(() => {
     const loadStoredPodcasts = async () => {
       console.log("📥 Loading stored podcasts from DB...");
-      const dbEntries = await getFromDB();
+      const dbEntries = await getAll();
       console.log("🔍 Retrieved entries from DB:", dbEntries);
       if (dbEntries) {
         for (const entry of dbEntries) {
