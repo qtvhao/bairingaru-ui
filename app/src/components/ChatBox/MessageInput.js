@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 const MessageInput = ({ onSend }) => {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState("Hãy tạo một podcast về công nghệ AI.");
 
   const handleSend = () => {
     if (input.trim() !== "") {

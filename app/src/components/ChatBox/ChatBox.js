@@ -1,18 +1,17 @@
-import React, { useState } from "react";
+import React from "react";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
+import { useChatContext } from "../ChatBox/ChatContext"
 
 const ChatBox = () => {
-  const [messages, setMessages] = useState([]);
-
-  const handleSend = (text) => {
-    setMessages([...messages, { text, sender: "You" }]);
-  };
+  const { chatHistory, sendMessage } = useChatContext();
 
   return (
     <div style={styles.chatContainer}>
-      <MessageList messages={messages} />
-      <MessageInput onSend={handleSend} />
+      {chatHistory.map((messages, index) => (
+        <MessageList key={index} messages={messages} />
+      ))}
+      <MessageInput onSend={sendMessage} />
     </div>
   );
 };
