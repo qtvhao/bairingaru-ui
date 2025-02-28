@@ -15,6 +15,7 @@ export const ChatContextProvider = ({ children }) => {
       console.log("🔍 Retrieved entries from DB:", dbEntries);
       if (dbEntries) {
         for (const entry of dbEntries) {
+          appendNewMessage(entry.correlationId, "Retrieving saved podcast response...");
           if (entry.podcastResponse) {
             console.log(`✅ Found podcast response for correlationId: ${entry.correlationId}`, entry);
             updateChatHistory(entry.correlationId, entry.podcastResponse);
