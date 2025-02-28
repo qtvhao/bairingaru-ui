@@ -44,34 +44,46 @@ export const ChatContextProvider = ({ children }) => {
     });
   };
 
-  const sendMessage = async (text) => {
+  const appendNewMessage = (correlationId, text) => {
+    setChatHistory((prevChatHistory) => {
+      const newChatHistory = [
+        ...prevChatHistory,
+        {
+          correlationId,
+          conversation: {
+            messages: [
+              {
+                text,
+                sender: "You",
+              },
+            ],
+          },
+        },
+      ];
+      console.log("💬 Chat history updated after sending message:", newChatHistory);
+      return newChatHistory;
+    });
+  };
+
+  const fetchAndStoreCorrelationId = async (text) => {
     console.log(`✉️ Sending message: ${text}`);
     const correlationId = await fetchCorrelationId(text);
     if (correlationId) {
       console.log(`🆔 Received correlationId: ${correlationId}`);
-      setChatHistory((prevChatHistory) => {
-        const newChatHistory = [
-          ...prevChatHistory,
-          {
-            correlationId,
-            conversation: {
-              messages: [
-                {
-                  text,
-                  sender: "You",
-                },
-              ],
-            },
-          },
-        ];
-        console.log("💬 Chat history updated after sending message:", newChatHistory);
-        return newChatHistory;
-      });
+      appendNewMessage(correlationId, text);
+      return correlationId;
+    } else {
+      console.warn("⚠️ Failed to retrieve correlationId", { text });
+      return null;
+    }
+  };
+
+  const sendMessage = async (text) => {
+    const correlationId = await fetchAndStoreCorrelationId(text);
+    if (correlationId) {
       pollPodcastResponse(correlationId).then(response => {
         updateChatHistory(correlationId, response);
       });
-    } else {
-      console.warn("⚠️ Failed to retrieve correlationId", { text });
     }
   };
 
