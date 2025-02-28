@@ -24,29 +24,41 @@ export const ChatContextProvider = ({ children }) => {
     loadStoredPodcasts();
   }, []);
 
-  const checkPodcastResponse = async (correlationId) => {
-    console.log(`⏳ Starting interval check for correlationId: ${correlationId}`);
+  const startPollingPodcastResponse = (correlationId) => {
+    console.log(`⏳ Starting polling for correlationId: ${correlationId}`);
     const interval = setInterval(async () => {
-      const response = await getPodcastByCorrelationId(correlationId);
-      console.log(`📩 Received response for correlationId ${correlationId}:`, response);
-      if (response?.choices) {
-        console.log(`✅ Stopping interval for correlationId: ${correlationId} as choices exist`, response);
+      const response = await fetchPodcastResponse(correlationId);
+      if (response) {
         clearInterval(interval);
-        setChatHistory((prevChatHistory) => {
-          const updatedChatHistory = prevChatHistory.map((chat) =>
-            chat.correlationId === correlationId
-              ? {
-                ...chat,
-                response,
-                trimmed: response.choices[0].message.audio.trimmed
-              }
-              : chat
-          );
-          console.log("📝 Updated chat history:", updatedChatHistory);
-          return updatedChatHistory;
-        });
+        updateChatHistory(correlationId, response);
       }
     }, 30_000);
+  };
+
+  const fetchPodcastResponse = async (correlationId) => {
+    console.log(`🔄 Fetching podcast response for correlationId: ${correlationId}`);
+    const response = await getPodcastByCorrelationId(correlationId);
+    if (response?.choices) {
+      console.log(`✅ Response received for correlationId: ${correlationId}`, response);
+      return response;
+    }
+    return null;
+  };
+
+  const updateChatHistory = (correlationId, response) => {
+    setChatHistory((prevChatHistory) => {
+      const updatedChatHistory = prevChatHistory.map((chat) =>
+        chat.correlationId === correlationId
+          ? {
+              ...chat,
+              response,
+              trimmed: response.choices[0].message.audio.trimmed,
+            }
+          : chat
+      );
+      console.log("📝 Updated chat history:", updatedChatHistory);
+      return updatedChatHistory;
+    });
   };
 
   const sendMessage = async (text) => {
@@ -70,7 +82,7 @@ export const ChatContextProvider = ({ children }) => {
         console.log("💬 Updated chat history after sending message:", newChatHistory);
         return newChatHistory;
       });
-      checkPodcastResponse(correlationId);
+      startPollingPodcastResponse(correlationId);
     } else {
       console.warn("⚠️ Failed to retrieve correlationId", { text });
     }
