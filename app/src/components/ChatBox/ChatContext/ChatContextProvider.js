@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect } from "react";
 import { fetchCorrelationId, getPodcastByCorrelationId } from "../ChatContext/api/fetchCorrelationId";
-import { getFromDB, saveToDB } from "../db/indexedDB";
+import { getFromDB } from "./db/indexedDB"
 
 export const ChatContext = createContext();
 
@@ -12,10 +12,12 @@ export const ChatContextProvider = ({ children }) => {
       console.log("📥 Loading stored podcasts from DB...");
       const dbEntries = await getFromDB();
       console.log("🔍 Retrieved entries from DB:", dbEntries);
-      for (const entry of dbEntries) {
-        if (!entry.podcastResponse) {
-          console.log(`🔍 Checking podcast response for correlationId: ${entry.correlationId}`, entry);
-          await getPodcastByCorrelationId(entry.correlationId);
+      if (dbEntries) {
+        for (const entry of dbEntries) {
+          if (!entry.podcastResponse) {
+            console.log(`🔍 Checking podcast response for correlationId: ${entry.correlationId}`, entry);
+            await getPodcastByCorrelationId(entry.correlationId);
+          }
         }
       }
     };
