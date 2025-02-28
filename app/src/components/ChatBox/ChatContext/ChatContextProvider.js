@@ -38,7 +38,7 @@ export const ChatContextProvider = ({ children }) => {
               ? {
                 ...chat,
                 response,
-                trimmed: this[0].response.choices[0].message.audio.trimmed
+                trimmed: response.choices[0].message.audio.trimmed
               }
               : chat
           );
