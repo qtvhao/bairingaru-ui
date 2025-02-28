@@ -15,11 +15,38 @@ export const fetchCorrelationId = async (text) => {
 
     const data = await response.json();
     if (data.correlationId) {
-      await saveToDB(data.correlationId, text);
+      const responsePodcast = data.choices ? data : null;
+      await saveToDB(data.correlationId, text, responsePodcast);
+      return data.correlationId;
     }
-    return data.correlationId;
+    return null;
   } catch (error) {
     console.error("Error fetching correlationId:", error);
+    return null;
+  }
+};
+
+export const getPodcastByCorrelationId = async (correlationId) => {
+  try {
+    const cachedPodcast = await getFromDB(correlationId);
+    if (cachedPodcast) return cachedPodcast;
+
+    const response = await fetch(`${API_URL}/${correlationId}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch podcast: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    if (data.choices) {
+      await saveToDB(correlationId, null, data);
+    }
+    return data;
+  } catch (error) {
+    console.error("Error fetching podcast by correlationId:", error);
     return null;
   }
 };

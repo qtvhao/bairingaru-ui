@@ -13,9 +13,14 @@ const initDB = async () => {
   });
 };
 
-export const saveToDB = async (correlationId, prompt) => {
+export const saveToDB = async (correlationId, prompt, podcastResponse = null) => {
   const db = await initDB();
-  await db.put(STORE_NAME, { correlationId, prompt });
+  const existingEntry = await db.get(STORE_NAME, correlationId);
+  await db.put(STORE_NAME, {
+    correlationId,
+    prompt: prompt || existingEntry?.prompt || null, // Keep the previous prompt if available
+    podcastResponse,
+  });
 };
 
 export const getFromDB = async (prompt) => {
