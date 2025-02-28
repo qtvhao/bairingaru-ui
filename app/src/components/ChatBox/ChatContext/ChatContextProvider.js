@@ -9,9 +9,12 @@ export const ChatContextProvider = ({ children }) => {
 
   useEffect(() => {
     const loadStoredPodcasts = async () => {
+      console.log("📥 Loading stored podcasts from DB...");
       const dbEntries = await getFromDB();
+      console.log("🔍 Retrieved entries from DB:", dbEntries);
       for (const entry of dbEntries) {
         if (!entry.podcastResponse) {
+          console.log(`🔍 Checking podcast response for correlationId: ${entry.correlationId}`, entry);
           await getPodcastByCorrelationId(entry.correlationId);
         }
       }
@@ -19,13 +22,43 @@ export const ChatContextProvider = ({ children }) => {
     loadStoredPodcasts();
   }, []);
 
+  const checkPodcastResponse = async (correlationId) => {
+    console.log(`⏳ Starting interval check for correlationId: ${correlationId}`);
+    const interval = setInterval(async () => {
+      const response = await getPodcastByCorrelationId(correlationId);
+      console.log(`📩 Received response for correlationId ${correlationId}:`, response);
+      if (response?.choices) {
+        console.log(`✅ Stopping interval for correlationId: ${correlationId} as choices exist`, response);
+        clearInterval(interval);
+        setChatHistory((prevChatHistory) => {
+          const updatedChatHistory = prevChatHistory.map((chat) =>
+            chat.correlationId === correlationId
+              ? { ...chat, response }
+              : chat
+          );
+          console.log("📝 Updated chat history:", updatedChatHistory);
+          return updatedChatHistory;
+        });
+      }
+    }, 3000);
+  };
+
   const sendMessage = async (text) => {
+    console.log(`✉️ Sending message: ${text}`);
     const correlationId = await fetchCorrelationId(text);
     if (correlationId) {
-      setChatHistory((prevChatHistory) => [
-        ...prevChatHistory,
-        { text, sender: "You", correlationId },
-      ]);
+      console.log(`🆔 Received correlationId: ${correlationId}`);
+      setChatHistory((prevChatHistory) => {
+        const newChatHistory = [
+          ...prevChatHistory,
+          { text, sender: "You", correlationId },
+        ];
+        console.log("💬 Updated chat history after sending message:", newChatHistory);
+        return newChatHistory;
+      });
+      checkPodcastResponse(correlationId);
+    } else {
+      console.warn("⚠️ Failed to retrieve correlationId", { text });
     }
   };
 
