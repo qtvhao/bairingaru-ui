@@ -38,7 +38,7 @@ export const ChatContextProvider = ({ children }) => {
               conversation: {
                 messages: [
                   ...chat.conversation.messages,
-                  response.choices[0].message.audio.trimmed.map(trim => {
+                  ...response.choices[0].message.audio.trimmed.map(trim => {
                     return {
                       text: trim.original,
                       sender: "System",
