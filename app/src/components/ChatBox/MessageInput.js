@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 const MessageInput = ({ onSend }) => {
-  const [input, setInput] = useState("Hãy tạo một podcast về công nghệ AI.");
+  const [input, setInput] = useState("Hãy tạo một kịch bản chi tiết cho một tập podcast về công nghệ AI. Tôi có thể dùng nó làm cơ sở để thu âm và phát triển thành một series dài hơn.");
 
   const handleSend = () => {
     if (input.trim() !== "") {
@@ -12,12 +12,11 @@ const MessageInput = ({ onSend }) => {
 
   return (
     <div style={styles.inputContainer}>
-      <input
-        type="text"
+      <textarea
         value={input}
         onChange={(e) => setInput(e.target.value)}
         placeholder="Type a message..."
-        style={styles.input}
+        style={styles.textarea}
       />
       <button onClick={handleSend} style={styles.button}>
         Send
@@ -28,7 +27,7 @@ const MessageInput = ({ onSend }) => {
 
 const styles = {
   inputContainer: {},
-  input: {},
+  textarea: {},
   button: {},
 };
 
