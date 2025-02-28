@@ -46,7 +46,7 @@ export const ChatContextProvider = ({ children }) => {
           return updatedChatHistory;
         });
       }
-    }, 3000);
+    }, 30_000);
   };
 
   const sendMessage = async (text) => {
