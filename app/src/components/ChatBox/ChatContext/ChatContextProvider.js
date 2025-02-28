@@ -35,6 +35,17 @@ export const ChatContextProvider = ({ children }) => {
         chat.correlationId === correlationId
           ? {
               ...chat,
+              conversation: {
+                messages: [
+                  ...chat.conversation.messages,
+                  response.choices[0].message.audio.trimmed.map(trim => {
+                    return {
+                      text: trim.original,
+                      sender: "System",
+                    }
+                  })
+                ]
+              },
               response,
               trimmed: response.choices[0].message.audio.trimmed,
             }
