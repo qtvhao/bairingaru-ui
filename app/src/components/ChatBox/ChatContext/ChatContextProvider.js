@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from "react";
 import { fetchCorrelationId, getPodcastByCorrelationId } from "../ChatContext/api/fetchCorrelationId";
-import { getAll } from "./db/indexedDB"
+import { getAll } from "./db/indexedDB";
+import { pollPodcastResponse } from "./api/pollPodcastResponse";
 
 export const ChatContext = createContext();
 
@@ -8,42 +9,24 @@ export const ChatContextProvider = ({ children }) => {
   const [chatHistory, setChatHistory] = useState([]);
 
   useEffect(() => {
-    const loadStoredPodcasts = async () => {
-      console.log("📥 Loading stored podcasts from DB...");
+    const loadSavedPodcasts = async () => {
+      console.log("📥 Loading saved podcasts from DB...");
       const dbEntries = await getAll();
       console.log("🔍 Retrieved entries from DB:", dbEntries);
       if (dbEntries) {
         for (const entry of dbEntries) {
-          if (!entry.podcastResponse) {
+          if (entry.podcastResponse) {
+            console.log(`✅ Found podcast response for correlationId: ${entry.correlationId}`, entry);
+            updateChatHistory(entry.correlationId, entry.podcastResponse);
+          } else {
             console.log(`🔍 Checking podcast response for correlationId: ${entry.correlationId}`, entry);
             await getPodcastByCorrelationId(entry.correlationId);
           }
         }
       }
     };
-    loadStoredPodcasts();
+    loadSavedPodcasts();
   }, []);
-
-  const startPollingPodcastResponse = (correlationId) => {
-    console.log(`⏳ Starting polling for correlationId: ${correlationId}`);
-    const interval = setInterval(async () => {
-      const response = await fetchPodcastResponse(correlationId);
-      if (response) {
-        clearInterval(interval);
-        updateChatHistory(correlationId, response);
-      }
-    }, 30_000);
-  };
-
-  const fetchPodcastResponse = async (correlationId) => {
-    console.log(`🔄 Fetching podcast response for correlationId: ${correlationId}`);
-    const response = await getPodcastByCorrelationId(correlationId);
-    if (response?.choices) {
-      console.log(`✅ Response received for correlationId: ${correlationId}`, response);
-      return response;
-    }
-    return null;
-  };
 
   const updateChatHistory = (correlationId, response) => {
     setChatHistory((prevChatHistory) => {
@@ -56,7 +39,7 @@ export const ChatContextProvider = ({ children }) => {
             }
           : chat
       );
-      console.log("📝 Updated chat history:", updatedChatHistory);
+      console.log("📝 Chat history updated:", updatedChatHistory);
       return updatedChatHistory;
     });
   };
@@ -70,19 +53,23 @@ export const ChatContextProvider = ({ children }) => {
         const newChatHistory = [
           ...prevChatHistory,
           {
-            correlationId, conversation: {
+            correlationId,
+            conversation: {
               messages: [
                 {
-                  text, sender: "You",
-                }
-              ]
-            }
+                  text,
+                  sender: "You",
+                },
+              ],
+            },
           },
         ];
-        console.log("💬 Updated chat history after sending message:", newChatHistory);
+        console.log("💬 Chat history updated after sending message:", newChatHistory);
         return newChatHistory;
       });
-      startPollingPodcastResponse(correlationId);
+      pollPodcastResponse(correlationId).then(response => {
+        updateChatHistory(correlationId, response);
+      });
     } else {
       console.warn("⚠️ Failed to retrieve correlationId", { text });
     }
