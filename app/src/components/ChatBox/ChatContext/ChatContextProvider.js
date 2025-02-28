@@ -53,7 +53,15 @@ export const ChatContextProvider = ({ children }) => {
       setChatHistory((prevChatHistory) => {
         const newChatHistory = [
           ...prevChatHistory,
-          { text, sender: "You", correlationId },
+          {
+            correlationId, conversation: {
+              messages: [
+                {
+                  text, sender: "You",
+                }
+              ]
+            }
+          },
         ];
         console.log("💬 Updated chat history after sending message:", newChatHistory);
         return newChatHistory;
