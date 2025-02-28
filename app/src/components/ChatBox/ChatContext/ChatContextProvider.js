@@ -1,5 +1,5 @@
 import React, { createContext, useState } from "react";
-import { fetchCorrelationId } from "../api/fetchCorrelationId";
+import { fetchCorrelationId } from "../ChatContext/api/fetchCorrelationId"
 
 export const ChatContext = createContext();
 

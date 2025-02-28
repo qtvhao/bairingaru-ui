@@ -1,13 +1,13 @@
 import React from "react";
-import { ChatContextWrapper } from "./components/ChatBox/ChatContext"
-import ChatBox from "./components/ChatBox/ChatBox"
+import { ChatContextProvider } from "./components/ChatBox/ChatContext/ChatContextProvider";
+import { ChatBox } from "./components/ChatBox";
 
-const App = () => {
+function App() {
   return (
-    <ChatContextWrapper>
+    <ChatContextProvider>
       <ChatBox />
-    </ChatContextWrapper>
+    </ChatContextProvider>
   );
-};
+}
 
 export default App;

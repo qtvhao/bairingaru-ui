@@ -1,7 +1,7 @@
 import React from "react";
 import MessageList from "./MessageList";
 import MessageInput from "./MessageInput";
-import { useChatContext } from "../ChatBox/ChatContext"
+import useChatContext from "../ChatBox/ChatContext/useChatContext"
 
 const ChatBox = () => {
   const { chatHistory, sendMessage } = useChatContext();
