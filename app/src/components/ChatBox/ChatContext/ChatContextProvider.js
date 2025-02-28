@@ -41,6 +41,7 @@ export const ChatContextProvider = ({ children }) => {
                   ...response.choices[0].message.audio.trimmed.map(trim => {
                     return {
                       text: trim.original,
+                      audioBase64: trim.audioBase64,
                       sender: "System",
                     }
                   })
